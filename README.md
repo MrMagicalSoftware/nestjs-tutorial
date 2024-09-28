@@ -11,3 +11,9 @@ Find more on : https://docs.nestjs.com/recipes/documentation
 npm install -g @nestjs/cli@latest
 
 ```
+
+Create a new Project :
+
+```
+nest new ninja-api
+```
