@@ -1,5 +1,16 @@
 # nestjs-tutorial
 
+# Setup
+# Modules
+# Controllers
+# Providers
+# Exception Handling
+# Pipes
+# Guards
+
+
+
+
 Nestjs uses the ExpressJs like the base ;
 it's build on top of nestjs.
 
@@ -49,6 +60,9 @@ Make the Get Request with Rested : http://localhost:3000
 
 
 ______________________________________________
+
+
+# Modules :
 
 
 
