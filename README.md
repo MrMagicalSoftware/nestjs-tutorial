@@ -45,7 +45,8 @@ Available for https://addons.mozilla.org/it/firefox/addon/rested/
 
 Make the Get Request with Rested : http://localhost:3000
 
-HTTP GET  -> controller -> service
+ HTTP GET  -> controller -> service  and after service -> controller -> GET
+
 
 ______________________________________________
 
