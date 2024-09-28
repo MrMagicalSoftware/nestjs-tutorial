@@ -20,4 +20,4 @@ nest new ninja-api
 
 Open the project with Visual Studio Code and the see the file named package.json:
 In this file u can see a list of the main commands used in nestjs like :
-nest start , or **nest start --watch
+nest start , or **nest start --watch**
