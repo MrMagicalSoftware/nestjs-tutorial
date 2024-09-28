@@ -34,6 +34,53 @@ async function bootstrap() {
 }
 bootstrap();
 ```
+______________________________________________
+
+Start the app with the relative command :
+
+
+I used : http://localhost:3000 with Rested client :
+(Install rested client ) :
+Available for https://addons.mozilla.org/it/firefox/addon/rested/
+
+Make the Get Request with Rested : http://localhost:3000
+
+HTTP GET  -> controller -> service
+
+______________________________________________
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
