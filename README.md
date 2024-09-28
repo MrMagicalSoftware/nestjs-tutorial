@@ -21,3 +21,23 @@ nest new ninja-api
 Open the project with Visual Studio Code and the see the file named package.json:
 In this file u can see a list of the main commands used in nestjs like :
 nest start , or **nest start --watch**
+
+The entry point of the app is main.ts
+
+```
+import { NestFactory } from '@nestjs/core';
+import { AppModule } from './app.module';
+
+async function bootstrap() {
+  const app = await NestFactory.create(AppModule);
+  await app.listen(3000);
+}
+bootstrap();
+```
+
+
+
+
+
+
+
