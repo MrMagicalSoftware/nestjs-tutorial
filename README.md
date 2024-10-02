@@ -489,6 +489,16 @@ ____________________________________________________________
 # Providers 
 
 
+## Key concepts
+
+- **Providers** are classes or values in NestJS that handle the core logic of the application, such as services, repositories, or utilities.
+- Providers are decorated with `@Injectable()` and can be injected into other classes (like controllers or other services) using **Dependency Injection**.
+- Providers are registered in the `providers` array of a module and can have different scopes (singleton, request-scoped, or transient).
+- Custom providers allow you to inject values, configurations, or dynamic services.
+- **Global providers** can be made available application-wide through global modules.
+
+By using providers, NestJS promotes the separation of concerns and modularity, helping to build maintainable and scalable applications.
+
 
 In **NestJS**, **providers** are classes or objects that can be **injected** into other classes (such as controllers or other providers) via **Dependency Injection (DI)**. Providers are responsible for encapsulating **business logic** and **reusable functionality** within your application. They are typically used to manage the core operations, services, or utilities that your application needs.
 
@@ -692,18 +702,10 @@ export class LoggerModule {}
 
 By making the `LoggerModule` global, the `LoggerService` can be injected into any other module without needing to import `LoggerModule` explicitly.
 
-## Summary
-
-- **Providers** are classes or values in NestJS that handle the core logic of the application, such as services, repositories, or utilities.
-- Providers are decorated with `@Injectable()` and can be injected into other classes (like controllers or other services) using **Dependency Injection**.
-- Providers are registered in the `providers` array of a module and can have different scopes (singleton, request-scoped, or transient).
-- Custom providers allow you to inject values, configurations, or dynamic services.
-- **Global providers** can be made available application-wide through global modules.
-
-By using providers, NestJS promotes the separation of concerns and modularity, helping to build maintainable and scalable applications.
 
 
 
+______________________________________________________
 
 
 
