@@ -1197,7 +1197,236 @@ In this example:
   
 By using pipes, NestJS ensures that incoming data is well-structured and validated before being processed by the application, making it easier to manage input errors and improve security.
 
+____________________
 
+
+
+In **NestJS**, **guards** are used to **control access** to specific routes or resources. They act as middleware to determine whether a particular request is allowed to proceed based on certain conditions, such as user authentication, authorization, or custom business logic.
+
+### Key Responsibilities of Guards:
+1. **Authentication**: Ensure that the user making the request is authenticated.
+2. **Authorization**: Verify that the authenticated user has the necessary permissions to access a particular route or resource.
+3. **Custom Logic**: Guards can be used to enforce any custom logic that needs to be checked before handling a request.
+
+### How Guards Work in NestJS
+Guards are executed **before** the request reaches the route handler or controller. They can either allow or deny the execution of the route based on certain logic. If the guard returns `true`, the request is allowed to proceed; if it returns `false`, NestJS will throw a **403 Forbidden** error or other appropriate response.
+
+Guards implement the **`CanActivate`** interface, which contains a single method called `canActivate`. This method is responsible for determining whether the request should proceed.
+
+### Example of a Simple Guard
+
+Here’s an example of a custom guard that only allows access if a user has a specific role.
+
+#### Step 1: Create a Guard
+
+```typescript
+import { Injectable, CanActivate, ExecutionContext } from '@nestjs/common';
+import { Observable } from 'rxjs';
+
+@Injectable()
+export class RolesGuard implements CanActivate {
+  canActivate(
+    context: ExecutionContext,
+  ): boolean | Promise<boolean> | Observable<boolean> {
+    const request = context.switchToHttp().getRequest();
+    const user = request.user;
+
+    // Example: Allow access only if the user has the 'admin' role
+    return user && user.role === 'admin';
+  }
+}
+```
+
+In this example:
+- The `canActivate` method checks if the user has an `admin` role.
+- If the user has the `admin` role, the guard returns `true`, allowing the request to proceed.
+- Otherwise, it returns `false`, blocking the request.
+
+#### Step 2: Applying the Guard
+
+You can apply the guard at different levels, including globally, at the controller level, or at the route level.
+
+##### Applying at the Controller Level
+
+```typescript
+import { Controller, Get, UseGuards } from '@nestjs/common';
+import { RolesGuard } from './roles.guard';
+
+@Controller('admin')
+@UseGuards(RolesGuard)
+export class AdminController {
+  @Get()
+  findAll() {
+    return 'This route is protected by the RolesGuard';
+  }
+}
+```
+
+##### Applying at the Route Level
+
+```typescript
+import { Controller, Get, UseGuards } from '@nestjs/common';
+import { RolesGuard } from './roles.guard';
+
+@Controller('admin')
+export class AdminController {
+  @Get()
+  @UseGuards(RolesGuard)
+  findAll() {
+    return 'This route is protected by the RolesGuard';
+  }
+}
+```
+
+In both cases, the `RolesGuard` will be triggered before the controller or route handler is executed.
+
+### Built-in Guards
+
+NestJS provides a built-in **`AuthGuard`** that can be used for authentication purposes, particularly when working with authentication strategies like **JWT**, **OAuth**, or **Passport.js**. The **`AuthGuard`** is typically used in combination with a user authentication mechanism.
+
+#### Example: Using `AuthGuard` with JWT
+
+1. **Install Passport and JWT Dependencies**:
+
+```bash
+npm install @nestjs/passport passport passport-jwt @nestjs/jwt
+```
+
+2. **Configure JWT Strategy**:
+
+```typescript
+import { Injectable } from '@nestjs/common';
+import { PassportStrategy } from '@nestjs/passport';
+import { Strategy, ExtractJwt } from 'passport-jwt';
+import { jwtConstants } from './constants';
+
+@Injectable()
+export class JwtStrategy extends PassportStrategy(Strategy) {
+  constructor() {
+    super({
+      jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
+      ignoreExpiration: false,
+      secretOrKey: jwtConstants.secret,
+    });
+  }
+
+  async validate(payload: any) {
+    return { userId: payload.sub, username: payload.username };
+  }
+}
+```
+
+3. **Using `AuthGuard` in the Controller**:
+
+```typescript
+import { Controller, Get, UseGuards } from '@nestjs/common';
+import { AuthGuard } from '@nestjs/passport';
+
+@Controller('profile')
+export class ProfileController {
+  @Get()
+  @UseGuards(AuthGuard('jwt'))
+  getProfile() {
+    return 'This route is protected by JWT authentication';
+  }
+}
+```
+
+In this example, the `AuthGuard('jwt')` will ensure that the request contains a valid JWT token before allowing access to the `getProfile` route.
+
+### Global Guards
+
+You can apply guards globally, meaning they will apply to every route in the application. This is useful for implementing global authentication or authorization logic.
+
+#### Applying a Global Guard
+
+To apply a guard globally, use `app.useGlobalGuards()` in the `main.ts` file:
+
+```typescript
+import { NestFactory } from '@nestjs/core';
+import { AppModule } from './app.module';
+import { RolesGuard } from './roles.guard';
+
+async function bootstrap() {
+  const app = await NestFactory.create(AppModule);
+  app.useGlobalGuards(new RolesGuard()); // Global guard
+  await app.listen(3000);
+}
+bootstrap();
+```
+
+### Customizing Guards with Metadata
+
+Guards can work with **custom metadata** by using NestJS's `Reflector` utility. For example, you might want to protect certain routes based on roles or permissions stored in metadata.
+
+#### Example: Role-Based Guard with Metadata
+
+1. **Create a Roles Decorator**:
+
+```typescript
+import { SetMetadata } from '@nestjs/common';
+
+export const Roles = (...roles: string[]) => SetMetadata('roles', roles);
+```
+
+2. **Modify the `RolesGuard` to Use Metadata**:
+
+```typescript
+import { Injectable
+
+```typescript
+import { Injectable, CanActivate, ExecutionContext } from '@nestjs/common';
+import { Reflector } from '@nestjs/core';
+
+@Injectable()
+export class RolesGuard implements CanActivate {
+  constructor(private reflector: Reflector) {}
+
+  canActivate(context: ExecutionContext): boolean {
+    const roles = this.reflector.get<string[]>('roles', context.getHandler());
+    if (!roles) {
+      return true; // If no roles are defined, allow access
+    }
+
+    const request = context.switchToHttp().getRequest();
+    const user = request.user;
+
+    return roles.includes(user?.role); // Check if the user's role is in the required roles
+  }
+}
+```
+
+3. **Using the `Roles` Decorator in a Controller**:
+
+```typescript
+import { Controller, Get, UseGuards } from '@nestjs/common';
+import { Roles } from './roles.decorator';
+import { RolesGuard } from './roles.guard';
+
+@Controller('admin')
+@UseGuards(RolesGuard)
+export class AdminController {
+  @Get()
+  @Roles('admin') // Protect this route with the 'admin' role
+  findAll() {
+    return 'This route is restricted to admins';
+  }
+}
+```
+
+In this example:
+- The `Roles` decorator adds metadata to the route, specifying the roles that are allowed to access it.
+- The `RolesGuard` checks if the current user has one of the allowed roles.
+
+### Summary
+
+- **Guards** in NestJS are used to control access to routes, typically for authentication and authorization.
+- Guards implement the **`CanActivate`** interface and can be applied globally, at the controller level, or at the route level.
+- NestJS provides built-in guards like **`AuthGuard`**, often used with authentication mechanisms like JWT or Passport.js.
+- **Custom guards** can be created to enforce specific business logic or rules (e.g., role-based access control).
+- Guards can work with **custom metadata** using the `Reflector` utility, enabling flexible control over access logic.
+
+By utilizing guards effectively, you can enforce strong security and control over who can access specific parts of your application.
 
 
 
