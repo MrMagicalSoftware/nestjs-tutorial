@@ -978,6 +978,246 @@ When validation fails, NestJS automatically returns a `400 Bad Request` response
 
 Using these mechanisms, you can ensure that your application provides meaningful and consistent error responses to clients while keeping your application resilient to unexpected errors.
 
+_____________________
+
+
+
+# PIPES
+
+
+In **NestJS**, **pipes** are used for **data transformation** and **validation**. They play a crucial role in ensuring that incoming data is properly formatted and meets specific requirements before it reaches the route handler or controller. Pipes can be applied to route parameters, the body of requests, and other inputs.
+
+### Key Responsibilities of Pipes:
+1. **Transformation**: Pipes can automatically transform input data into the desired format (e.g., converting a string to a number).
+2. **Validation**: Pipes can validate incoming data and throw errors if the data is not valid, preventing further execution.
+
+### How Pipes Work
+Pipes are executed **before** the route handler is called. They receive the incoming request data, process it (validate/transform), and pass it to the handler if valid. If the data is invalid, the pipe can throw an exception, returning an appropriate error response.
+
+### Built-in Pipes in NestJS
+NestJS provides several built-in pipes for common transformation and validation tasks:
+
+1. **`ValidationPipe`**: Used for validating request payloads (especially with DTOs).
+2. **`ParseIntPipe`**: Transforms a string parameter to an integer.
+3. **`ParseBoolPipe`**: Transforms a string parameter to a boolean.
+4. **`ParseArrayPipe`**: Transforms a string to an array.
+5. **`DefaultValuePipe`**: Provides a default value if none is provided.
+
+#### Example: `ParseIntPipe`
+
+```typescript
+import { Controller, Get, Param, ParseIntPipe } from '@nestjs/common';
+
+@Controller('users')
+export class UsersController {
+  @Get(':id')
+  findOne(@Param('id', ParseIntPipe) id: number) {
+    // id will be an integer thanks to ParseIntPipe
+    return `User with ID: ${id}`;
+  }
+}
+```
+
+In this example, `ParseIntPipe` converts the `id` parameter from a string to an integer. If the `id` cannot be converted, it throws an error, and NestJS responds with a `BadRequestException`.
+
+### Using `ValidationPipe`
+
+The **`ValidationPipe`** is commonly used with **DTOs (Data Transfer Objects)** to validate incoming request payloads using decorators from the `class-validator` package.
+
+#### Example: Using `ValidationPipe` with a DTO
+
+1. **Install Dependencies**:
+
+```bash
+npm install class-validator class-transformer
+```
+
+2. **Create a DTO**:
+
+```typescript
+import { IsString, IsInt, Min } from 'class-validator';
+
+export class CreateUserDto {
+  @IsString()
+  name: string;
+
+  @IsInt()
+  @Min(1)
+  age: number;
+}
+```
+
+3. **Apply `ValidationPipe`**:
+
+```typescript
+import { Controller, Post, Body, ValidationPipe } from '@nestjs/common';
+import { CreateUserDto } from './create-user.dto';
+
+@Controller('users')
+export class UsersController {
+  @Post()
+  create(@Body(new ValidationPipe()) createUserDto: CreateUserDto) {
+    // Data will be validated before reaching this point
+    return `User created: ${createUserDto.name}`;
+  }
+}
+```
+
+In this example:
+- The `ValidationPipe` validates the incoming `CreateUserDto`. If the payload is invalid (e.g., missing the `name` field or having a negative age), the pipe will automatically throw a `BadRequestException` with detailed error messages.
+
+### Global, Route, and Parameter-Level Pipes
+
+You can apply pipes at three levels:
+1. **Globally**: The pipe is applied to every route in the application.
+2. **At the controller or route handler level**: The pipe is applied only to specific routes or controllers.
+3. **At the parameter level**: The pipe is applied to a specific parameter of a route.
+
+#### Applying Pipes Globally
+
+In `main.ts`, you can apply a pipe globally:
+
+```typescript
+import { ValidationPipe } from '@nestjs/common';
+import { NestFactory } from '@nestjs/core';
+import { AppModule } from './app.module';
+
+async function bootstrap() {
+  const app = await NestFactory.create(AppModule);
+  app.useGlobalPipes(new ValidationPipe()); // Apply globally
+  await app.listen(3000);
+}
+bootstrap();
+```
+
+#### Applying Pipes at the Controller or Route Level
+
+```typescript
+import { Controller, Post, Body, ValidationPipe } from '@nestjs/common';
+import { CreateUserDto } from './create-user.dto';
+
+@Controller('users')
+export class UsersController {
+  @Post()
+  create(@Body(new ValidationPipe()) createUserDto: CreateUserDto) {
+    return `User created: ${createUserDto.name}`;
+  }
+}
+```
+
+#### Applying Pipes at the Parameter Level
+
+```typescript
+import { Controller, Get, Param, ParseIntPipe } from '@nestjs/common';
+
+@Controller('users')
+export class UsersController {
+  @Get(':id')
+  findOne(@Param('id', ParseIntPipe) id: number) {
+    return `User with ID: ${id}`;
+  }
+}
+```
+
+### Custom Pipes
+
+You can create custom pipes by implementing the `PipeTransform` interface. Custom pipes are useful when you need specialized validation or transformation logic.
+
+#### Example: Creating a Custom Pipe
+
+```typescript
+import { PipeTransform, Injectable, BadRequestException } from '@nestjs/common';
+
+@Injectable()
+export class UppercasePipe implements PipeTransform {
+  transform(value: string) {
+    if (typeof value !== 'string') {
+      throw new BadRequestException('Value must be a string');
+    }
+    return value.toUpperCase();
+  }
+}
+```
+
+You can then apply this custom pipe in your controller:
+
+```typescript
+import { Controller, Get, Param } from '@nestjs/common';
+import { UppercasePipe } from './uppercase.pipe';
+
+@Controller('users')
+export class UsersController {
+  @Get(':name')
+  findOne(@Param('name', UppercasePipe) name: string) {
+    return `User: ${name}`;
+  }
+}
+```
+
+In this example, the `UppercasePipe` converts the `name` parameter to uppercase before passing it to the route handler.
+
+### Pipe Options in `ValidationPipe`
+
+The `ValidationPipe` comes with several configurable options for handling how validation is performed:
+
+- **`whitelist`**: Strips out properties that are not defined in the DTO.
+- **`forbidNonWhitelisted`**: Throws an error if any properties are not defined in the DTO.
+- **`transform`**: Automatically transforms payloads to be instances of the DTO.
+
+#### Example: Using `ValidationPipe` Options
+
+```typescript
+import { Controller, Post, Body, ValidationPipe } from '@nestjs/common';
+import { CreateUserDto } from './create-user.dto';
+
+@Controller('users')
+export class UsersController {
+  @Post()
+  create(
+    @Body(new ValidationPipe({ whitelist: true, forbidNonWhitelisted: true, transform: true }))
+    createUserDto: CreateUserDto
+  ) {
+    return `User created: ${createUserDto.name}`;
+  }
+}
+```
+
+In this example:
+- **`whitelist: true`**: Only the properties defined in the DTO (`name` and `age`) will be retained. Any extra properties in the request payload will be stripped.
+- **`forbidNonWhitelisted: true`**: If extra properties are present, NestJS will throw an error.
+- **`transform: true`**: Automatically transforms the input into an instance of the `CreateUserDto`.
+
+### Summary
+
+- **Pipes** in NestJS are used for data transformation and validation.
+- NestJS provides several built-in pipes, such as `ValidationPipe`, `ParseIntPipe`, and `ParseBoolPipe`.
+- Pipes can be applied at the global, controller, or parameter level.
+- **Custom pipes** can be created by implementing the `PipeTransform` interface.
+- The `ValidationPipe` is commonly used with DTOs to validate incoming request payloads, offering options like `whitelist` and `transform`.
+  
+By using pipes, NestJS ensures that incoming data is well-structured and validated before being processed by the application, making it easier to manage input errors and improve security.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
