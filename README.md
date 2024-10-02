@@ -21,6 +21,7 @@ it's build on top of nestjs.
 
 Find more on : https://docs.nestjs.com/recipes/documentation
 
+### 1
 # how to install nestjs
 
 ```
@@ -66,7 +67,7 @@ Make the Get Request with Rested : http://localhost:3000
 
 ______________________________________________
  
-
+### 2
 # Modules :
 
 In NestJS, a popular framework for building scalable and maintainable server-side applications with Node.js, modules play a central role in organizing and structuring your application. They help in managing the application's architecture by grouping related components, such as controllers, providers (services), and other modules, into cohesive units. 
@@ -286,7 +287,7 @@ __________________
 
 
 
-
+### 3
 # Controllers
 
 
