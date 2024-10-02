@@ -982,7 +982,7 @@ Using these mechanisms, you can ensure that your application provides meaningful
 _____________________
 
 
-
+### 6
 # PIPES
 
 
@@ -1200,6 +1200,8 @@ By using pipes, NestJS ensures that incoming data is well-structured and validat
 
 ____________________
 
+### 7
+# GUARDS
 
 
 In **NestJS**, **guards** are used to **control access** to specific routes or resources. They act as middleware to determine whether a particular request is allowed to proceed based on certain conditions, such as user authentication, authorization, or custom business logic.
