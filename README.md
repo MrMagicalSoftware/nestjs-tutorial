@@ -241,15 +241,11 @@ By annotating the module with @Global(), NestJS makes the LoggerService availabl
 
 ## Best Practices for Using Modules
 
-    Feature-Based Organization: Group related controllers, services, and other providers into feature modules to encapsulate functionality.
-
-    Keep Modules Focused: Each module should have a clear responsibility. Avoid creating modules that handle unrelated concerns.
-
-    Use Shared Modules for Common Providers: If multiple modules need the same provider (e.g., utility services), create a shared module that exports these providers.
-
-    Leverage Dynamic and Global Modules When Appropriate: Use dynamic modules for configurable features and global modules for cross-cutting concerns that should be accessible application-wide.
-
-    Avoid Circular Dependencies: Ensure that modules do not depend on each other in a way that creates a cycle, as this can lead to runtime errors and complicate the dependency injection graph.
+Feature-Based Organization: Group related controllers, services, and other providers into feature modules to encapsulate functionality.
+Keep Modules Focused: Each module should have a clear responsibility. Avoid creating modules that handle unrelated concerns.
+Use Shared Modules for Common Providers: If multiple modules need the same provider (e.g., utility services), create a shared module that exports these providers.
+Leverage Dynamic and Global Modules When Appropriate: Use dynamic modules for configurable features and global modules for cross-cutting concerns that should be accessible application-wide.
+Avoid Circular Dependencies: Ensure that modules do not depend on each other in a way that creates a cycle, as this can lead to runtime errors and complicate the dependency injection graph.
 
 
 
