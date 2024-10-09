@@ -32,7 +32,7 @@ npm install -g @nestjs/cli@latest
 Create a new Project :
 
 ```
-nest new ninja-api
+nest new nameOfProject
 ```
 
 Open the project with Visual Studio Code and the see the file named package.json:
