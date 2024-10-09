@@ -266,7 +266,7 @@ nest g controller NameOfModules
 
 For a service :
 ```
-nest g service ninjas
+nest g service nameOfService
 ```
 
 For creating controller and provider in one command :
